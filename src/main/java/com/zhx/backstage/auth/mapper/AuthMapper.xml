@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhx.backstage.auth.mapper.AuthMapper">
+
+
+    <!--查询授权信息-->
+    <select id="selectAllAuth" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select * from authorization where authurl != ''
+    </select>
+
+
+    <!--通过权限id查询角色-->
+    <select id="selectRoleIdentByAuthID" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+      select t2.roleident from authorization t1, role t2, role_auth t3
+        where t1.authid = t3.authid
+        and t2.roleid=t3.roleid
+        and t1.authid = #{authID}
+    </select>
+
+
+    <!--通过用户id查询角色-->
+    <select id="selectRoleIdentByUserID" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select t2.roleident from adminuser t1, role t2, user_role t3
+        where t1.userid = t3.userid
+        and t2.roleid=t3.roleid
+        and t1.userid = #{userID}
+    </select>
+
+
+    <!--通过pid查询菜单-->
+    <select id="selectMenuByPid" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+          select authid as id, authname as text, authurl as url, IF(authurl!='','open','closed') as state
+           from authorization t
+          where t.pid = #{pID}
+    </select>
+
+    <!--添加菜单-->
+    <insert id="insertMenu"  parameterType="java.util.HashMap">
+           insert into AUTHORIZATION (authname,authurl,status,createdate,pid)
+        values(#{authName},#{authUrl},#{status},#{createDate},#{pID})
+    </insert>
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhx.backstage.role.mapper.RoleMapper">
+
+    <!--查询角色信息-->
+    <select id="selectRole" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select * from role t
+        where 1=1
+        <if test="roleName!=null">
+            and t.rolename = #{roleName}
+        </if>
+        <if test="createTime!=null">
+            and t.createdate = #{createTime}
+        </if>
+        <if test="roleStatus!=null">
+            and t.status = #{roleStatus}
+        </if>
+    </select>
+
+
+    <!--查询所有角色信息-->
+    <select id="selectAllRole" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select * from role t
+    </select>
+
+    <!--添加角色-->
+    <insert id="insertRole" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="roleid">
+      insert into role(rolename,roleident,status,createdate)
+        values(#{roleName},#{roleIdent},#{status},#{createDate})
+    </insert>
+
+    <insert id="insertRoleAuth" parameterType="java.util.HashMap" >
+        insert into role_auth(roleid,authid)
+        values(#{roleID},#{authID})
+    </insert>
+
+    <update id="updateRole" parameterType="java.util.HashMap">
+        UPDATE role set status=#{status}  where roleid=#{id}
+
+    </update>
+
+</mapper>

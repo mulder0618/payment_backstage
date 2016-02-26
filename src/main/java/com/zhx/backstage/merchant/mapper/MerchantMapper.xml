@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhx.backstage.merchant.mapper.MerchantMapper">
+
+
+    <!--查询列表-->
+    <select id="selectMerchant" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+      select t.*
+       from payment_merchant t
+        where 1=1
+        <if test="MerchantName!=null">
+            and t.MerchantName LIKE '%${MerchantName}%'
+        </if>
+        <if test="CreateDate!=null">
+            <![CDATA[
+                  and t.CreateDate >= #{CreateDate,jdbcType=DATE}
+               ]]>
+        </if>
+        <if test="Status!=null">
+            and t.Status = #{Status}
+        </if>
+
+
+    </select>
+
+
+    <!--更新-->
+    <update id="updateMerchant" parameterType="java.util.HashMap" >
+        update payment_merchant t
+        <set>
+            <if test="status != null">
+                Status = #{status},
+            </if>
+            <if test="MerchantName != null">
+                MerchantName = #{MerchantName},
+            </if>
+            <if test="Authcode != null">
+                Authcode = #{Authcode},
+            </if>
+            <if test="MerchantID != null">
+                MerchantID = #{MerchantID},
+            </if>
+            <if test="SupportPaymentWay != null">
+                SupportPaymentWay = #{SupportPaymentWay},
+            </if>
+        </set>
+        where t.ID = #{ID}
+    </update>
+
+    <insert id="insertMerchant" parameterType="java.util.HashMap">
+        INSERT INTO payment_merchant (MerchantID,MerchantName,CreateDate,Status,SupportPaymentway,Authcode)
+        VALUES (
+         #{MerchantID},#{MerchantName},#{CreateDate},#{Status},#{SupportPaymentway},#{Authcode+}
+
+        )
+
+    </insert>
+
+
+
+
+</mapper>

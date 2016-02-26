@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/security   
+            http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+
+    <!--  Spring-Security 的配置 -->
+    <!-- 注意开启use-expressions.表示开启表达式.
+    see:http://www.family168.com/tutorial/springsecurity3/html/el-access.html
+     -->
+
+    <security:http auto-config="true" use-expressions="true" access-denied-page="/auth/denied">
+
+        <security:custom-filter ref="securityFilter" before="FILTER_SECURITY_INTERCEPTOR"/>
+
+        <!-- <security:intercept-url pattern="/auth/login" access="permitAll"/>
+         <security:intercept-url pattern="/index/showindex" access="hasRole('ROLE_ADMIN')"/>-->
+
+        <security:form-login
+                login-page="/auth/login"
+                authentication-failure-url="/auth/login?error=true"
+                default-target-url="/index/showindex"/>
+
+        <security:logout
+                invalidate-session="true"
+                logout-success-url="/auth/login"
+                logout-url="/auth/logout"/>
+
+    </security:http>
+
+    <!-- 指定一个自定义的authentication-manager :customUserDetailsService -->
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider user-service-ref="authenticationManagerProvider">
+            <security:password-encoder ref="passwordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <!-- 对密码进行MD5编码 -->
+    <bean class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" id="passwordEncoder"/>
+
+    <!--
+        通过 customUserDetailsService,Spring会自动的用户的访问级别.
+        也可以理解成:以后我们和数据库操作就是通过customUserDetailsService来进行关联.
+     -->
+    <bean id="authenticationManagerProvider" class="com.zhx.backstage.auth.filter.AuthenticationManager"/>
+
+
+    <bean id="securityFilter" class="com.zhx.backstage.auth.filter.MyFilterSecurityInterceptor">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="myAccessDecisionManagerBean"/>
+        <property name="securityMetadataSource" ref="securityMetadataSource"/>
+    </bean>
+
+
+    <!--  访问决策器，决定某个用户具有的角色，是否有足够的权限去访问某个资源  -->
+    <bean id="myAccessDecisionManagerBean"
+          class="com.zhx.backstage.auth.filter.MyAccessDecisionManager"/>
+
+
+<bean id="authService" class="com.zhx.backstage.auth.service.AuthService"></bean>
+
+    <!--  资源源数据定义，即定义某一资源可以被哪些角色访问  -->
+    <bean init-method="loadResourceDefine" id="securityMetadataSource"
+          class="com.zhx.backstage.auth.filter.MyInvocationSecurityMetadataSource" >
+        <property name="authService" ref="authService"/>
+    </bean>
+</beans>  

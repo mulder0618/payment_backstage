@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zhx.backstage.order.mapper.OrderMapper">
+
+
+    <!--查询订单列表-->
+    <select id="selectOrderList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+      select t.PayID,t.MerchantID,t.OrderNO,t.Amount,t.Status,t.PaymentWay,t.CreateDate,t.Paytime
+       from payment_order t
+        where 1=1
+        <if test="orderStatus!=null">
+            and t.Status = #{orderStatus}
+        </if>
+        <if test="startTime!=null">
+            <![CDATA[
+                  and t.CreateDate > #{startTime,jdbcType=DATE}
+               ]]>
+        </if>
+        <if test="endTime!=null">
+            <![CDATA[
+                  and t.CreateDate < date_add( #{endTime,jdbcType=DATE} , INTERVAL 1 day )
+              ]]>
+        </if>
+        <if test="orderNo!=null">
+            and t.OrderNO = #{orderNo,jdbcType=VARCHAR}
+        </if>
+        <if test="gatewayOrderNo!=null">
+            and t.PayID = #{gatewayOrderNo,jdbcType=VARCHAR}
+        </if>
+        <if test="sort!=null">
+            ORDER  BY  ${sort} ${order}
+        </if>
+        <if test="sort==null">
+            ORDER  BY  t.CreateDate DESC
+        </if>
+    </select>
+
+
+    <!--更新网关订单-->
+    <update id="updatePaymentOrder" parameterType="java.util.HashMap" >
+        update payment_order t
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="payTime != null">
+                paytime = #{payTime},
+            </if>
+        </set>
+        where t.payid = #{payID}
+    </update>
+
+    <!--查询网关订单表-->
+    <select id="selectPaymentOrder"  parameterType="java.util.HashMap" resultType="java.util.HashMap" >
+        select * from payment_order t
+        where 1=1
+        <if test="payID!=null">
+            and t.payid = #{payID}
+        </if>
+        <if test="status!=null">
+            and t.status = #{status}
+        </if>
+        <if test="orderNO!=null">
+            and t.orderno = #{orderNO}
+        </if>
+    </select>
+
+    <!--查询商户信息表-->
+    <select id="selectPaymentMerchant"  parameterType="java.util.HashMap" resultType="java.util.HashMap" >
+    select t.merchantid,t.merchantname,t.authcode from payment_merchant t
+    where 1=1
+    <if test="merchantID!=null">
+        and t.merchantid = #{merchantID}
+    </if>
+    <if test="status!=null">
+        and t.status = #{status}
+    </if>
+    </select>
+
+
+</mapper>
